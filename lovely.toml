@@ -1,0 +1,130 @@
+
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+
+# Nice Part Usage: track when each rank was last played
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = '''
+-- TARGET: effects before deck final_scoring_step
+'''
+times = 1
+position = 'after'
+match_indent = true
+payload = '''
+G.FUNCS.amaryllis_lego_after_scoring(scoring_hand)
+'''
+
+
+# SNOT Brick: alter ranks if present
+[[patches]]
+[patches.pattern]
+target = 'card.lua'
+pattern = '''
+function Card:get_id()
+'''
+position = 'after'
+match_indent = true
+payload = '''
+	if not G.GAME.override_snot_brick and next(SMODS.find_card('j_amaryllis_lego_snot_brick')) then
+		if self.base.id == 9 then return 6 end
+		if self.base.id == 5 then return 2 end
+	end
+'''
+
+
+
+# My Own Creation: Override Poker Hand description with dynamic MOC name
+# My Own Creation: Override Makemake name localization with correct variant, for The Fool description
+[[patches]]
+[patches.pattern]
+target = 'functions/misc_functions.lua'
+pattern = '''
+function localize(args, misc_cat)
+'''
+position = 'after'
+match_indent = true
+payload = '''
+	if misc_cat == 'poker_hand_descriptions' and args == 'amaryllis_lego_moc' and G.GAME.amaryllis_lego_moc_hand then
+		return localize_moc_hand_description(G.GAME.amaryllis_lego_moc_hand)
+	end
+	if args and args.type == 'name_text' and args.key == 'c_amaryllis_lego_makemake' then
+		return G.FUNCS.amaryllis_lego_get_makemake_name()
+	end
+'''
+
+# My Own Creation: Override Poker Hand description to remove example cardarea if hand is not set
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''
+function create_UIBox_hand_tip(handname)
+'''
+position = 'after'
+match_indent = true
+payload = '''
+	if handname == 'amaryllis_lego_moc' and not G.GAME.amaryllis_lego_moc_hand then
+		return {n=G.UIT.R, config={align = "cm"}}
+	end
+'''
+
+
+
+# My Own Creation: Replace Chips + Mult values on Collection/Poker Hands screen with ?s
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''
+function create_UIBox_current_hand_row(handname, simple, in_collection)
+'''
+position = 'after'
+match_indent = true
+payload = '''
+	if handname == 'amaryllis_lego_moc' and not G.GAME.amaryllis_lego_moc_hand and G.GAME.hands['amaryllis_lego_moc'].mult == 0 then
+		G.GAME.hands['amaryllis_lego_moc'].chips = '???'
+		G.GAME.hands['amaryllis_lego_moc'].mult = '??'
+		local moc_ret_value = create_UIBox_current_hand_row(handname, simple, in_collection)
+		G.GAME.hands['amaryllis_lego_moc'].chips = 0
+		G.GAME.hands['amaryllis_lego_moc'].mult = 0
+		return moc_ret_value
+	end
+'''
+
+
+
+# My Own Creation: prevent creating Makemake (via e.g. Blue Seal) unless MOC Joker is present
+# NB: Setting forced_key to nil will cause it to generate a random Planet card instead
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+'''
+position = 'after'
+match_indent = true
+payload = '''
+	if forced_key == 'c_amaryllis_lego_makemake' then
+		if G.GAME.amaryllis_lego_moc_hand == nil or not next(SMODS.find_card('j_amaryllis_lego_my_own_creation')) then
+			forced_key = nil
+		end
+	end
+'''
+
+
+
+# My Own Creation: prevent MOC hand from being prematurely leveled up (e.g. by using Black Hole before MOC has been set)
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''
+function level_up_hand(card, hand, instant, amount, statustext)
+'''
+position = 'after'
+match_indent = true
+payload = '''
+	if hand == 'amaryllis_lego_moc' and not G.GAME.amaryllis_lego_moc_hand then return end
+'''

@@ -1,0 +1,19 @@
+{
+	"id": "amaryllis_lego",
+	"name": "LEGO Jokers",
+	"display_name": "LEGO Jokers",
+	"author": ["Amaryllis"],
+	"description": "Adds 15 LEGO-themed Jokers and 1 Deck",
+	"prefix": "amaryllis_lego",
+	"main_file": "src/main.lua",
+	"priority": 1,
+	"badge_colour": "FBDB41",
+	"badge_text_colour": "FFFFFF",
+	"version": "1.0.0",
+	"dependencies": [
+		"Steamodded (>=1.0.0~BETA-1814a)" 
+	],
+	"conflicts": [
+		"Talisman"
+	]
+}
