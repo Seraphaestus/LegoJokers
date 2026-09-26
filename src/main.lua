@@ -1,13 +1,14 @@
 local mod = SMODS.current_mod
 SMODS.Atlas{ key = "jokers", path = "jokers.png", px = 71, py = 95 }
-SMODS.Atlas{ key = "consumables", path = "consumables.png", px = 65, py = 95 }
+SMODS.Atlas{ key = "consumables", path = "consumables.png", px = 71, py = 95 }
 SMODS.Atlas{ key = "decks", path = "decks.png", px = 71, py = 95 }
 SMODS.Atlas{ key = "modicon", path = "icon.png", px = 32, py = 32 }
 
 SMODS.current_mod.config_tab = function()
     local makemake_display = CardArea(0,0, G.CARD_W, G.CARD_H, 
         {card_limit = 1, type = 'title', highlight_limit = 0, lr_padding = 0})
-    local makemake = Card(0,0, 65/71 * G.CARD_W, G.CARD_H, G.P_CENTERS['c_' .. mod.prefix .. '_makemake'], G.P_CENTERS.c_base)
+    
+    local makemake = Card(0,0, G.CARD_W, G.CARD_H, nil, G.P_CENTERS['c_' .. mod.prefix .. '_makemake'])
     makemake.no_ui = true
     makemake_display:emplace(makemake)
 
